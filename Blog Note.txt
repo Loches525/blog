@@ -47,7 +47,8 @@
     ]
 15. 处理静态文件， 在应用目录下新建static文件夹，再在其中新建与app同名的文件夹，再在其中放入诸如css和js的静态文件
 16. 为了能在模板中使用{% static %}标签，需要在HTML文件的最顶部加入{% load staticfiles %}
-17. 使用static标签的原因是因为方便修改，它是在setting文件中通过STATIC_URL = '/static/'指定的，最终可以渲染    成/static/blog/css/pace.css。如果要改变前缀static，只需要在setting文件中修改STATIC_URL的值便可。
+17. 使用static标签的原因是因为方便修改，它是在setting文件中通过STATIC_URL = '/static/'指定的，最终可以渲染    
+    成/static/blog/css/pace.css。如果要改变前缀static，只需要在setting文件中修改STATIC_URL的值便可。
 18. 修改模板使之显示文章数据，可通过{% %}模板标签遍历数据读取
 19. 在Django Admin后台发布文章
 	创建后台管理员账户  python manage.py createsuperuser 按提示输入账户密码邮箱便可
@@ -94,14 +95,17 @@
 	...
     </aside>
     ...
-24. 继承的时候需要再html文件的顶部加入{% extends 'base.html' %}语句，如此可将base.html中的内容继承过来，并且可在block/endblock占    位区中自定义所需的代码
+24. 继承的时候需要再html文件的顶部加入{% extends 'base.html' %}语句，如此可将base.html中的内容继承过来，并且可在block/endblock占    
+    位区中自定义所需的代码
 25. 侧边栏： 使用自定义模板标签(不是在视图函数中)
-    在blog应用下新建一个templatetags文件夹，然后在此文件夹下新建一个__init__.py文件，是这个文件夹成为一个Python包，然后同样在当前文      件夹下新建一个blog_tags.py文件，这个文件存放自定义的模板标签代码
+    在blog应用下新建一个templatetags文件夹，然后在此文件夹下新建一个__init__.py文件，是这个文件夹成为一个Python包，然后同样在当前文      
+    件夹下新建一个blog_tags.py文件，这个文件存放自定义的模板标签代码
     from ..models import Post
     
     def get_recent_posts(num=5):
 	return Post.objects.all().order_by('-created_time')[:num]
-    因为这只是一个纯Python函数，Django在模板中不知道怎么使用它，为了能够通过{% get_recent_posts %}的语法在模板中调用这个函数，必须      按照Django的规定注册这个函数为模板标签，先导入template模块，然后实例化一个template.Library，并将函数get_recent_posts装饰为        register.simple_tag，具体方法如下：
+    因为这只是一个纯Python函数，Django在模板中不知道怎么使用它，为了能够通过{% get_recent_posts %}的语法在模板中调用这个函数，必须      
+    按照Django的规定注册这个函数为模板标签，先导入template模块，然后实例化一个template.Library，并将函数get_recent_posts装饰为                     register.simple_tag，具体方法如下：
     from django import template
     from ..models import Post
 
@@ -125,7 +129,8 @@
 	post_list = Post.objects.filter(category=cate).order_by('-created_time')
 	return render(request, 'blog/index.html', context={'post_list': post_list})
     配置URL url(r'^category/(?P<pk>[0-9]+)/$', views.category, name='category')
-28. 评论， 因为评论是一个比较独立的功能，Django提倡独立的功能最好是创建一个应用。因此需在项目根目录中创建另一个应用comments，用以存    放和评论相关的代码
+28. 评论， 因为评论是一个比较独立的功能，Django提倡独立的功能最好是创建一个应用。因此需在项目根目录中创建另一个应用comments，用以存    
+    放和评论相关的代码
     python manage.py startapp comments
     注册comments到setting文件中 INSTALLED_APPS = [ ..., 'comments',]
 29. 设计评论的数据库模型
@@ -145,7 +150,9 @@
 	def __str__(self):
 	    return self.text[:20]
     迁移数据库python manage.py makemigrations, python manage.py migrate
-30. 编写评论表单代码，在comments目录中新建一个forms.py文件，用以存放表单代码。要用Django的表单功能，需先导入forms模块，Django的表单      必须继承自forms.Form或者forms.ModelForm类，如果表单对应有一个数据库模型，（此处评论表单对应着评论模型）,所以使用ModelForm类会简      单很多
+30. 编写评论表单代码，在comments目录中新建一个forms.py文件，用以存放表单代码。要用Django的表单功能，需先导入forms模块，Django的表单      
+    必须继承自forms.Form或者forms.ModelForm类，如果表单对应有一个数据库模型，（此处评论表单对应着评论模型）,所以使用ModelForm类会简      
+    单很多
     from django import forms
     from .models import Comment
 
@@ -153,7 +160,8 @@
 	class Meta:
 	    model = Comment
 	    fields = ['name', 'email', 'url', 'text']
-31. 编写评论视图函数，comments目录下的views.py。当redirect函数接收一个模型的实例时，它会调用这个模型实例的get_absolute_url，然后重    定向到get_absoluste_url方法返回的url。
+31. 编写评论视图函数，comments目录下的views.py。当redirect函数接收一个模型的实例时，它会调用这个模型实例的get_absolute_url，然后重    
+    定向到get_absoluste_url方法返回的url。
     from django.shortcuts import render, get_object_or_404, redirect
     from blog.models import Post
     from .models import Comment
@@ -194,7 +202,8 @@
 	comment_list = post.commnent_set.all()
 	context = {'post': post, 'form':form, 'comment_list': comment_list}
 	return render(request, 'blog/deatil.html', context=context)
-34. 渲染前段表单, {{ form.name.errors }}, {{ form.email.errors }}等渲染表单对应字段的错误（如果有的话）。即用户填了格式不对的内容，    错误就会相应显示出来
+34. 渲染前段表单, {{ form.name.errors }}, {{ form.email.errors }}等渲染表单对应字段的错误（如果有的话）。即用户填了格式不对的内容，    
+    错误就会相应显示出来
     <form action="{% url 'comments:post_comment' post.pk %} method="post" class="comment-form">
 	{% csrf_token %}
 	<div class="row">
@@ -235,7 +244,9 @@
 	暂无评论
 	{% endfor %}
     </ul>
-36. 因为只要是返回的文章列表，基本都是逆序排列， 所以各个视图都有类似于Post.objects.all().order_by('-created_time')的语句，为了避    免重复，可以在Post模型中制定Post的自然排列方式。Django允许在models.Model的子类里定义一个Meta的内部类，这个内部类通过指定一些属性    来规定这个类该有的一些属性。例如制定排列顺序可以用ordering。
+36. 因为只要是返回的文章列表，基本都是逆序排列， 所以各个视图都有类似于Post.objects.all().order_by('-created_time')的语句，为了避    
+    免重复，可以在Post模型中制定Post的自然排列方式。Django允许在models.Model的子类里定义一个Meta的内部类，这个内部类通过指定一些属性    
+    来规定这个类该有的一些属性。例如制定排列顺序可以用ordering。
     class Post(models.Model):
 	...
 	class Meta:
@@ -250,7 +261,9 @@
     </header>
 38. 显示评论的数量， 模型管理器(comment_set是一个特殊的模型管理器)有一个count方法，返回的是数量。因此可以直接在模板中调用这个方法
     {{ post.comment_set.count }}来显示文章的评论数量。
-39. 显示文章的阅读量， 可在Post中加入新字段来储存阅读量,PositiveIntegerField的值只允许为正整数或0。然后在加入增加阅读量的方法，同样    的最好是由Post模型自己完成。注意方法中使用了updated_fields参数来告诉Django只更新数据库中的views字段的值，以提高效率。修改模型之    后记得迁移数据库
+39. 显示文章的阅读量， 可在Post中加入新字段来储存阅读量,PositiveIntegerField的值只允许为正整数或0。然后在加入增加阅读量的方法，同样    
+    的最好是由Post模型自己完成。注意方法中使用了updated_fields参数来告诉Django只更新数据库中的views字段的值，以提高效率。修改模型之    
+    后记得迁移数据库
     class Post(models.Model):
 	...
 	views = modesl.PositiveIntegerField(default=0)
@@ -273,7 +286,8 @@
 	...
 	<span class="views-count"><a href="#">{{ post.views }} 阅读</a></span>
     </div>
-40. 自动生成文章摘要，可以在Post模型中复写save方法，在数据被保存到数据库之前，先从body字段摘取N个字符保存到excerpt字段中，从而实现自    动摘要的目的。最后再调用父类的save方法将数据保存到数据库中。
+40. 自动生成文章摘要，可以在Post模型中复写save方法，在数据被保存到数据库之前，先从body字段摘取N个字符保存到excerpt字段中，从而实现自    
+    动摘要的目的。最后再调用父类的save方法将数据保存到数据库中。
     import markdown
     from django.utils.html import strip_tags
 
