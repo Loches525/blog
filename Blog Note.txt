@@ -47,7 +47,8 @@
     ]
 15. 处理静态文件， 在应用目录下新建static文件夹，再在其中新建与app同名的文件夹，再在其中放入诸如css和js的静态文件
 16. 为了能在模板中使用{% static %}标签，需要在HTML文件的最顶部加入{% load staticfiles %}
-17. 使用static标签的原因是因为方便修改，它是在setting文件中通过STATIC_URL = '/static/'指定的，最终可以渲染    成/static/blog/css/pace.css。如果要改变前缀static，只需要在setting文件中修改STATIC_URL的值便可。
+17. 使用static标签的原因是因为方便修改，它是在setting文件中通过STATIC_URL = '/static/'指定的，最终可以渲染成/static/blog/css/pace.css。
+    如果要改变前缀static，只需要在setting文件中修改STATIC_URL的值便可。
 18. 修改模板使之显示文章数据，可通过{% %}模板标签遍历数据读取
 19. 在Django Admin后台发布文章
 	创建后台管理员账户  python manage.py createsuperuser 按提示输入账户密码邮箱便可
@@ -94,14 +95,14 @@
 	...
     </aside>
     ...
-24. 继承的时候需要再html文件的顶部加入{% extends 'base.html' %}语句，如此可将base.html中的内容继承过来，并且可在block/endblock占    位区中自定义所需的代码
+24. 继承的时候需要再html文件的顶部加入{% extends 'base.html' %}语句，如此可将base.html中的内容继承过来，并且可在block/endblock占位区中自定义所需     的代码
 25. 侧边栏： 使用自定义模板标签(不是在视图函数中)
-    在blog应用下新建一个templatetags文件夹，然后在此文件夹下新建一个__init__.py文件，是这个文件夹成为一个Python包，然后同样在当前文      件夹下新建一个blog_tags.py文件，这个文件存放自定义的模板标签代码
+    在blog应用下新建一个templatetags文件夹，然后在此文件夹下新建一个__init__.py文件，是这个文件夹成为一个Python包，然后同样在当前文件夹下新建一个     log_tags.py文件，这个文件存放自定义的模板标签代码
     from ..models import Post
     
     def get_recent_posts(num=5):
 	return Post.objects.all().order_by('-created_time')[:num]
-    因为这只是一个纯Python函数，Django在模板中不知道怎么使用它，为了能够通过{% get_recent_posts %}的语法在模板中调用这个函数，必须      按照Django的规定注册这个函数为模板标签，先导入template模块，然后实例化一个template.Library，并将函数get_recent_posts装饰为        register.simple_tag，具体方法如下：
+    因为这只是一个纯Python函数，Django在模板中不知道怎么使用它，为了能够通过{% get_recent_posts %}的语法在模板中调用这个函数，必须按照Django的规     定注册这个函数为模板标签，先导入template模块，然后实例化一个template.Library，并将函数get_recent_posts装饰为register.simple_tag，具体方法如     下：
     from django import template
     from ..models import Post
 
@@ -125,7 +126,8 @@
 	post_list = Post.objects.filter(category=cate).order_by('-created_time')
 	return render(request, 'blog/index.html', context={'post_list': post_list})
     配置URL url(r'^category/(?P<pk>[0-9]+)/$', views.category, name='category')
-28. 评论， 因为评论是一个比较独立的功能，Django提倡独立的功能最好是创建一个应用。因此需在项目根目录中创建另一个应用comments，用以存    放和评论相关的代码
+28. 评论， 因为评论是一个比较独立的功能，Django提倡独立的功能最好是创建一个应用。因此需在项目根目录中创建另一个应用comments，
+    以存放和评论相关的代码
     python manage.py startapp comments
     注册comments到setting文件中 INSTALLED_APPS = [ ..., 'comments',]
 29. 设计评论的数据库模型
@@ -145,7 +147,7 @@
 	def __str__(self):
 	    return self.text[:20]
     迁移数据库python manage.py makemigrations, python manage.py migrate
-30. 编写评论表单代码，在comments目录中新建一个forms.py文件，用以存放表单代码。要用Django的表单功能，需先导入forms模块，Django的表单      必须继承自forms.Form或者forms.ModelForm类，如果表单对应有一个数据库模型，（此处评论表单对应着评论模型）,所以使用ModelForm类会简      单很多
+30. 编写评论表单代码，在comments目录中新建一个forms.py文件，用以存放表单代码。要用Django的表单功能，需先导入forms模块，Django的表单必须继承自         forms.Form或者forms.ModelForm类，如果表单对应有一个数据库模型，（此处评论表单对应着评论模型）,所以使用ModelForm类会简单很多
     from django import forms
     from .models import Comment
 
@@ -153,7 +155,7 @@
 	class Meta:
 	    model = Comment
 	    fields = ['name', 'email', 'url', 'text']
-31. 编写评论视图函数，comments目录下的views.py。当redirect函数接收一个模型的实例时，它会调用这个模型实例的get_absolute_url，然后重    定向到get_absoluste_url方法返回的url。
+31. 编写评论视图函数，comments目录下的views.py。当redirect函数接收一个模型的实例时，它会调用这个模型实例的get_absolute_url，然后重定向到             get_absoluste_url方法返回的url。
     from django.shortcuts import render, get_object_or_404, redirect
     from blog.models import Post
     from .models import Comment
@@ -194,7 +196,8 @@
 	comment_list = post.commnent_set.all()
 	context = {'post': post, 'form':form, 'comment_list': comment_list}
 	return render(request, 'blog/deatil.html', context=context)
-34. 渲染前端表单, {{ form.name.errors }}, {{ form.email.errors }}等渲染表单对应字段的错误（如果有的话）。即用户填了格式不对的内容，    错误就会相应显示出来
+34. 渲染前端表单, {{ form.name.errors }}, {{ form.email.errors }}等渲染表单对应字段的错误（如果有的话）。
+    即用户填了格式不对的内容，错误就会相应显示出来
     <form action="{% url 'comments:post_comment' post.pk %} method="post" class="comment-form">
 	{% csrf_token %}
 	<div class="row">
@@ -235,7 +238,7 @@
 	暂无评论
 	{% endfor %}
     </ul>
-36. 因为只要是返回的文章列表，基本都是逆序排列， 所以各个视图都有类似于Post.objects.all().order_by('-created_time')的语句，为了避    免重复，可以在Post模型中制定Post的自然排列方式。Django允许在models.Model的子类里定义一个Meta的内部类，这个内部类通过指定一些属性    来规定这个类该有的一些属性。例如制定排列顺序可以用ordering。
+36. 因为只要是返回的文章列表，基本都是逆序排列， 所以各个视图都有类似于Post.objects.all().order_by('-created_time')的语句，为了避免重复，可以在     Post模型中制定Post的自然排列方式。Django允许在models.Model的子类里定义一个Meta的内部类，这个内部类通过指定一些属性来规定这个类该有的一些属性。     例如制定排列顺序可以用ordering。
     class Post(models.Model):
 	...
 	class Meta:
@@ -250,7 +253,7 @@
     </header>
 38. 显示评论的数量， 模型管理器(comment_set是一个特殊的模型管理器)有一个count方法，返回的是数量。因此可以直接在模板中调用这个方法
     {{ post.comment_set.count }}来显示文章的评论数量。
-39. 显示文章的阅读量， 可在Post中加入新字段来储存阅读量,PositiveIntegerField的值只允许为正整数或0。然后在加入增加阅读量的方法，同样    的最好是由Post模型自己完成。注意方法中使用了updated_fields参数来告诉Django只更新数据库中的views字段的值，以提高效率。修改模型之    后记得迁移数据库
+39. 显示文章的阅读量， 可在Post中加入新字段来储存阅读量,PositiveIntegerField的值只允许为正整数或0。然后在加入增加阅读量的方法，同样的最好是由Post     模型自己完成。注意方法中使用了updated_fields参数来告诉Django只更新数据库中的views字段的值，以提高效率。修改模型之后记得迁移数据库
     class Post(models.Model):
 	...
 	views = modesl.PositiveIntegerField(default=0)
@@ -273,7 +276,7 @@
 	...
 	<span class="views-count"><a href="#">{{ post.views }} 阅读</a></span>
     </div>
-40. 自动生成文章摘要，可以在Post模型中复写save方法，在数据被保存到数据库之前，先从body字段摘取N个字符保存到excerpt字段中，从而实现自    动摘要的目的。最后再调用父类的save方法将数据保存到数据库中。strip_tags方法是为了将HTML的标签去掉。
+40. 自动生成文章摘要，可以在Post模型中复写save方法，在数据被保存到数据库之前，先从body字段摘取N个字符保存到excerpt字段中，从而实现自动摘要的目的。     最后再调用父类的save方法将数据保存到数据库中。strip_tags方法是为了将HTML的标签去掉。
     import markdown
     from django.utils.html import strip_tags
 
@@ -309,7 +312,8 @@
     app_name = 'blog'
     urlpattern = [ url(r'^$', views.IndexView.as_view(), name='index'),...]
 43. 将category视图函数改写成类视图，和index视图函数不同的是，它获取的是某个分类下的全部文章，因此相比之下多了过滤的一步。
-    在类视图中，从URL补货的命名组参数值保存在实例的kwargs属性里，非命名组参数值保存在实例的args属性里。因此这里需使用    self.kwargs.get('pk')来获取URL捕获的分类id值，然后再调用父类的get_queryset方法获得全部的文章列表，紧接着就对返回的结果调用    filter方法来筛选该分类下的全部文章。另外，因为前三行代码和IndexView是一样的，为避免重复，可以直接继承IndexView。
+    在类视图中，从URL补货的命名组参数值保存在实例的kwargs属性里，非命名组参数值保存在实例的args属性里。因此这里需使用self.kwargs.get('pk')来获取       URL捕获的分类id值，然后再调用父类的get_queryset方法获得全部的文章列表，紧接着就对返回的结果调用filter方法来筛选该分类下的全部文章。
+    另外，因为前三行代码和IndexView是一样的，为避免重复，可以直接继承IndexView。
     class CategoryView(ListView):
 	model = Post
 	template_name = 'blog/index.html'
@@ -321,7 +325,7 @@
 44. 配置URL路径
     app_name = 'blog'
     urlpatterns = [ ... url(r'^category/(?P<pk>[0-9]+)/$', views.CategoryView.as_view(), name='category'),]
-45. archivies视图函数改写成类视图跟category是一样的，另外Django还提供一个DetailView类视图，下面将detail类视图函数转换成等价的类视图     PostDetailView。首先指定的一些属性值和ListView中是一样的，然后复写了get方法，这里对应这detai视图函数中将post的阅读量+1的那部分    代码；然后又复写了get_object方法，这对应这detail视图函数中根据文章的id(也就是pk)获取文章然后对post.body进行Markdown渲染的部分；    最后又复写了get_context_data方法，这部分对应这detail视图函数中生成评论表单、获取post下的评论列表的部分，它首先调用父类的    get_context_data方法获得当前的上下文对象，然后更新再返回给模板。其实，可以将get方法看成是detail视图函数，然后其它的get、    get_object、get_context_data都是辅助方法，这些方法最终都在get方法中被调用，这里没有看到是因为都隐含在super(PostDetailView,     self).get(request, *args, **kwargs)之中，最终返回的响应就是get方法返回的HttpResponse对象。
+45. archivies视图函数改写成类视图跟category是一样的，另外Django还提供一个DetailView类视图，下面将detail类视图函数转换成等价的类视图                 PostDetailView。首先指定的一些属性值和ListView中是一样的，然后复写了get方法，这里对应这detai视图函数中将post的阅读量+1的那部分代码；然后又复写     了get_object方法，这对应这detail视图函数中根据文章的id(也就是pk)获取文章然后对post.body进行Markdown渲染的部分;最后又复写了get_context_data方     法，这部分对应这detail视图函数中生成评论表单、获取post下的评论列表的部分，它首先调用父类的get_context_data方法获得当前的上下文对象，然后更新再     返回给模板。其实，可以将get方法看成是detail视图函数，然后其它的get、get_object、get_context_data都是辅助方法，这些方法最终都在get方法中被调       用，这里没有看到是因为都隐含在super(PostDetailView,self).get(request, *args, **kwargs)之中，最终返回的响应就是get方法返回的HttpResponse对     象。
     from django.views.generic import ListView, DetailView
     class PostDetailView(DetailView):
 	model = Post
@@ -351,7 +355,7 @@
 	    })
 	    return context
 46. Django Pagination分页功能, Django内置了Paginator类实现分页功能，这个类位于django.core.paginator.py，使用时导入便可。
-    简单分页，所需变量：paginator(Paginator的实例),page_obj(当前请求页面分页对象)，is_paginated(是否已分页，超过两页才    算),object_list(请求页面的对象列表)。因为类视图ListView已经写好了分页逻辑，所以只需指定paginate_by(每页的文章数)属性来开启分页    功能即可。
+    简单分页，所需变量：paginator(Paginator的实例),page_obj(当前请求页面分页对象)，is_paginated(是否已分页，超过两页才算),object_list(请求页面     的对象列表)。因为类视图ListView已经写好了分页逻辑，所以只需指定paginate_by(每页的文章数)属性来开启分页功能即可。
     class IndexView(ListView):
 	model = Post
 	template_name = 'blog/index.html
@@ -369,7 +373,7 @@
 	{% endif %}
     </div>
     {% endif %}
-47. 分页效果完善，使得(1.始终显示第一页和最后一页。2.当前页码高亮显示。3.显示当前页码前后几个连续的页码。4.如果两个页码号间还有其它页     码，中间显示省略号以提醒用户。）在类视图中传递模板变量给模板是通过get_context_data获得的，所以可以复写该方法，以便插入自定义的模板    变量。首先得获得父类生成的传递给模板的字典context，在context中有paginator,page_obj,is_paginated三个模板变量，由于context是字典    ，所以用get方法取出某个键对应的值，然后调用自己写的pagination_data方法获得像是分页导航条需要的数据，并且调用context的update方法    更新数据，最后返回
+47. 分页效果完善，使得(1.始终显示第一页和最后一页。2.当前页码高亮显示。3.显示当前页码前后几个连续的页码。4.如果两个页码号间还有其它页码，中间显示省     略号以提醒用户。）在类视图中传递模板变量给模板是通过get_context_data获得的，所以可以复写该方法，以便插入自定义的模板变量。首先得获得父类生成的传     递给模板的字典context，在context中有paginator,page_obj,is_paginated三个模板变量，由于context是字典，所以用get方法取出某个键对应的值，然后调     用自己写的pagination_data方法获得像是分页导航条需要的数据，并且调用context的update方法更新数据，最后返回
     class IndexView(ListView):
 	model = Post
 	template_name = 'blog/index.html'
@@ -458,7 +462,7 @@
     {% endif %}
 
 	=IFERROR(IF(MATCH(O432,$O:$O,0)=ROW(),1,0),0)
-49. 使用Annotate统计各个分类下的文章数，只要是两个model类通过ForeignKey或者ManyToMany关联起来，就可以使用annotate方法来统计数    量。Category.objects.annotate方法和Category.objects.all有点类似，它会返回数据库中全部Category的记录，同时可用count方法返回        Category记录集合中每条记录下的文章数，count方法接收一个和Category相关联的模型参数名(这里是Post，通过ForeignKey关联的，注意         count的参数要小写),然后将返回的文章数保存在num_posts属性中。最后还用filter方法将num_posts的值小于1的分类过滤掉，因为是函数中的     参数，所以用双下划线，gt是django的查询表达式，意思是greater than,条件意思就是num_posts>0
+49. 使用Annotate统计各个分类下的文章数，只要是两个model类通过ForeignKey或者ManyToMany关联起来，就可以使用annotate方法来统计数量。                   Category.objects.annotate方法和Category.objects.all有点类似，它会返回数据库中全部Category的记录，同时可用count方法返回Category记录集合中每     条记录下的文章数，count方法接收一个和Category相关联的模型参数名(这里是Post，通过ForeignKey关联的，注意count的参数要小写),然后将返回的文章数保     存在num_posts属性中。最后还用filter方法将num_posts的值小于1的分类过滤掉，因为是函数中的参数，所以用双下划线，gt是django的查询表达式，意思是       greater than,条件意思就是num_posts>0
     blog/templatetags/blog_tags.py
    
     from django.db.models.aggregates import Count
@@ -528,8 +532,7 @@
     ]
 55. 设置标签跳转链接
     <a href="{% url 'blog:tag' tag.pk %}>{{ tag.name }}</a>
-56. 编写模板代码，这里因为Post和Tag是多对多的关系，所以post.tags就可能有多个值，因此Django没有让post.tags返回全部标签，而是返回一个    模型管理器(类似于objects)，然后可以调用这个模型管理器的all方法，来获取这篇post下的全部标签列表。但是在模板中调用方法需要去掉括号。
-    post.body是HTML代码，为防止Django对其转义，需要加上safe标签。
+56. 编写模板代码，这里因为Post和Tag是多对多的关系，所以post.tags就可能有多个值，因此Django没有让post.tags返回全部标签，而是返回一个模型管理器(类似     于objects)，然后可以调用这个模型管理器的all方法，来获取这篇post下的全部标签列表。但是在模板中调用方法需要去掉括号。post.body是HTML代码，为防止     Django对其转义，需要加上safe标签。
     <div class="entry-content clearfix">
 	{{ post.body|safe }}
 	<div class="widget-tag-cloud">
@@ -540,7 +543,7 @@
 	    </ul>
 	</div>
     </div>
-57. RSS订阅,RSS是一种描述和同步网站内容的格式，它采用XML作为内容传递的格式，简单来说就是网站可以把内容包装成符合RSS标准的XML格式文      档。如果博客网站都支持RSS订阅，读者只需要一个聚合阅读器订阅博客，然后读者就可以在聚合器工具里看到全部博客的更新内容。Django内置了     一些生成XML文档的方法，下面用这些方法来创建RSS订阅文档。在blog应用的根目录下(models.py所在目录)新建一个feeds.py文件用以存放和      RSS功能相关的代码。
+57. RSS订阅,RSS是一种描述和同步网站内容的格式，它采用XML作为内容传递的格式，简单来说就是网站可以把内容包装成符合RSS标准的XML格式文档。如果博客网站都     支持RSS订阅，读者只需要一个聚合阅读器订阅博客，然后读者就可以在聚合器工具里看到全部博客的更新内容。Django内置了一些生成XML文档的方法，下面用这些     方法来创建RSS订阅文档。在blog应用的根目录下(models.py所在目录)新建一个feeds.py文件用以存放和RSS功能相关的代码。
     from django.contrib.syndication.views import Feed
     from .models import Post
 
@@ -562,11 +565,11 @@
 	url(r'^all/rss/$', AllPostRssFeed(), name='rss'),
 	...
     ]
-    修改模板代码，将RSS的URL添加到模板中,运行服务器，在侧边栏点击RSS订阅的链接，就会跳转到/all/rss/，会看到乱码，这是生成的RSS标准文     档，是给RSS聚合阅读器工具读取的。
+    修改模板代码，将RSS的URL添加到模板中,运行服务器，在侧边栏点击RSS订阅的链接，就会跳转到/all/rss/，会看到乱码，这是生成的RSS标准文档，是给RSS聚合    阅读器工具读取的。
     <div class="css">
 	<a href="{% url 'rss' %}"><sapn class="ion-social-rss-outline"></span> RSS 订阅</a>
     </div>
-58. Markdown自动生成文章目录，markdown.extension.toc是自动生成目录的拓展。在页面的任何地方生成目录，要先实例化一个    markdown.Markdown类md，并传入extensions参数。接着使用该实例的convert方法将post.body中的Markdown文本渲染成HTML文本。然后md就会    多出一个toc属性，这个属性的值就是内容的目录。注意post实例本身没有md属性,只是被动态添加了。
+58. Markdown自动生成文章目录，markdown.extension.toc是自动生成目录的拓展。在页面的任何地方生成目录，要先实例化一个markdown.Markdown类md，并传入     extensions参数。接着使用该实例的convert方法将post.body中的Markdown文本渲染成HTML文本。然后md就会多出一个toc属性，这个属性的值就是内容的目录。     注意post实例本身没有md属性,只是被动态添加了。
     def get_object(self, queryset=None):
 	md = 'markdown.Markdown(extensions=[
 	     'markdown.extensions.extra',
@@ -583,7 +586,7 @@
 	    {{ post.toc|safe }}
 	</div>
     {% endblock %}
-60. 美化标题的锚点URL，因为我们的标题通常都是中文，Markdown没法处理，所以在URL上就忽略了标题的值，简单的在后面加了个_1的锚点值，为了    解决这个问题，需要修改一下传给extensions的参数。将markdown.extensions.toc改成TocExtension的实例，TocExtension在实例化时其        slugify参数可以接受一个函数作为参数，这个函数将被用于处理标题的锚点值，Markdown内置的处理方法不能处理中文标题，但是    django.utils.text中的slugify方法可以处理。
+60. 美化标题的锚点URL，因为我们的标题通常都是中文，Markdown没法处理，所以在URL上就忽略了标题的值，简单的在后面加了个_1的锚点值，为了解决这个问题，需     要修改一下传给extensions的参数。将markdown.extensions.toc改成TocExtension的实例，TocExtension在实例化时其slugify参数可以接受一个函数作为参     数，这个函数将被用于处理标题的锚点值，Markdown内置的处理方法不能处理中文标题，但是django.utils.text中的slugify方法可以处理。
     from django.utils.text import slugify
     from markdown.extensions.toc import TocExtension
 
@@ -595,7 +598,7 @@
 	    TocExtension(slugify=slugify),
 	)]
 	...
-61. 简单全文搜索，博客文章通常包含标题和正文两部分，当用户输入关键词搜索后，我们希望为用户显示标题和正文中含有搜索关键词的全部文章。    搜索流程如下：1.用户输入搜索关键词，然后点击搜索按钮将关键词提交到服务器。2.服务器接收到关键词之后去数据库查找文章标题和正文含有    该关键词的全部文章。3.服务器将查询结果返回给用户。
+61. 简单全文搜索，博客文章通常包含标题和正文两部分，当用户输入关键词搜索后，我们希望为用户显示标题和正文中含有搜索关键词的全部文章。搜索流程如下：1.     用户输入搜索关键词，然后点击搜索按钮将关键词提交到服务器。2.服务器接收到关键词之后去数据库查找文章标题和正文含有该关键词的全部文章。3.服务器将查     询结果返回给用户。
     首先提供一个搜索表单给用户：
     base.html
 
@@ -603,7 +606,7 @@
 	<input type="search" name="q" placeholder="搜索" required>
 	<button type="submit"><span class="ion-ios-search-strong"></span></button>
     </form>
-62. 在blog/views.py中编写search视图函数。获取输入的关键词request.GET.get('q')，用户通过get方法提交的数据Django为我们奥存在request.GET里，因为在html文件中定义了搜索框的名字是q，所以key是q。过滤条件Q(title__icontains=q),意思是标题中含有q，前缀i表示不区分大小写，icontains是查询表达式，用法是在模型需要筛选的属性后面跟上两个下划线。Q对象用于包装查询表达式，作用是为了提供复杂的查询逻辑。
+62. 在blog/views.py中编写search视图函数。获取输入的关键词request.GET.get('q')，用户通过get方法提交的数据Django为我们奥存在request.GET里，因为在     html文件中定义了搜索框的名字是q，所以key是q。过滤条件Q(title__icontains=q),意思是标题中含有q，前缀i表示不区分大小写，icontains是查询表达式，     用法是在模型需要筛选的属性后面跟上两个下划线。Q对象用于包装查询表达式，作用是为了提供复杂的查询逻辑。
     form django.db.models import Q
     
     def search(request):
@@ -635,7 +638,7 @@
     urlpatterns = [
 	url(r'^search/$', views.search, name='search'),
     ]
-64. Django Haystack 全文检索与关键词高亮，django-haystack是一个专门提供搜索功能的django第三方应用，使用它可以安装一些必要的依赖，    Whoosh，是一个有纯Python实现的全文搜索引擎，没有二进制文件等，比较小巧，配置简单方便; Jieba，中文自然语言处理库，很好的支持中文的    分词。使用pip安装以上的包pip install django-haystack whoosh jieba。 然后在setting的app中注册haystack，然后加入如下配置项：
+64. Django Haystack 全文检索与关键词高亮，django-haystack是一个专门提供搜索功能的django第三方应用，使用它可以安装一些必要的依赖,Whoosh,是一个有纯     Python实现的全文搜索引擎，没有二进制文件等，比较小巧，配置简单方便; Jieba，中文自然语言处理库，很好的支持中文的    分词。使用pip安装以上的包pip     install django-haystack whoosh jieba。 然后在setting的app中注册haystack，然后加入如下配置项：
     HAYSTACK_CONNECTIONS = {
 	'default': {
 	    'ENGINE': 'blog.whoosh_cn_backend.WhooshEngine',
@@ -644,7 +647,7 @@
     }
     HAYSTACK_SEARCH_RESULTS_PER_PAGE = 10
     HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-65. 处理数据，需要告诉django haystack使用那些数据建立索引以及如何存放索引。如果要对blog应用下的数据进行全文检索，做法是在blog应用下    建立一个search_indexes.py文件，然后建立一个XXIndex类(XX为含有被检索数据的类型，如这里的Post),并且继承SearchIndex和Indexable,    这是django haystack的规定。每个索引里面必须有且只有一个字段为document=True，这代表django haystack和搜索引擎将使用此字段的内容    作为索引进行检索。注意，如果一个字段设置了document=True,则一般约定此字段名为text,这是在SearchIndex里面的一贯命名，以防止后台混    乱。
+65. 处理数据，需要告诉django haystack使用那些数据建立索引以及如何存放索引。如果要对blog应用下的数据进行全文检索，做法是在blog应用下建立一个           search_indexes.py文件，然后建立一个XXIndex类(XX为含有被检索数据的类型，如这里的Post),并且继承SearchIndex和Indexable,这是django haystack的     规定。每个索引里面必须有且只有一个字段为document=True，这代表django haystack和搜索引擎将使用此字段的内容作为索引进行检索。注意，如果一个字段设     置了document=True,则一般约定此字段名为text,这是在SearchIndex里面的一贯命名，以防止后台混乱。
     blog/search_indexes.py
 
     from haystack import indexes
@@ -656,7 +659,7 @@
 	    return Post
 	def index_queryset(self, using=None):
 	    return self.get_model().objects.all()
-    并且，haystack提供了use_template=True在text字段中，这样会允许我们使用数据模板去建立搜索引擎索引的文件，比如索引里面存放Post的    title字段。数据模板的路径为templates/search/indexes/app/<model_name>_text.txt,例如：
+    并且，haystack提供了use_template=True在text字段中，这样会允许我们使用数据模板去建立搜索引擎索引的文件，比如索引里面存放Post的title字段。数据     模板的路径为templates/search/indexes/app/<model_name>_text.txt,例如：
     templates/search/indexes/blog/post_text.txt
 
     {{ object.title }}
@@ -666,7 +669,7 @@
     urlpatterns = [
 	url(r'^search/', include('haystack.urls')),
     ]
-67. 创建搜索结果页面，haystack_search视图函数会将搜索结果传递给模板search/search.html，因此创建这个模板文件，对搜索结果进行渲染，以下代码是将搜索结果分页展示，每一页展示的每篇文章包括标题，标题下的信息以及正文摘要，并且每篇都有在最下面添加一个"继续阅读"的按钮。在页面最下面有分页的按钮，其中&laquo;表示向左的双箭头，&raquo;表示向右的双箭头。
+67. 创建搜索结果页面，haystack_search视图函数会将搜索结果传递给模板search/search.html，因此创建这个模板文件，对搜索结果进行渲染，以下代码是将搜索     结果分页展示，每一页展示的每篇文章包括标题，标题下的信息以及正文摘要，并且每篇都有在最下面添加一个"继续阅读"的按钮。在页面最下面有分页的按钮，其     中&laquo;表示向左的双箭头，&raquo;表示向右的双箭头。
     templates/search/search.html
 
     {% extends 'base.html' %}
@@ -741,13 +744,13 @@
 
     # 可以用max_length限制最终{{ result.summary }} 被高亮处理后的长度
     {% highlight result.summary with query max_length 40 %}
-70. 修改搜索引擎为中文分词，django haystack中为Whoosh指定的分词器是英文分词器，可以换成jieba中文分词器。从安装的haystack中把haystack/backends/whoosh_backends.py文件拷贝到blog/下，重命名为whoosh_cn_backends.py(之前在setting文件中的HAYSTACK_CONNECTIONS指定的就是这个文件)。然后在其中找到一行代码，修改之，修改之前先引入ChiniseAnalyzer
+70. 修改搜索引擎为中文分词，django haystack中为Whoosh指定的分词器是英文分词器，可以换成jieba中文分词器。从安装的haystack中把                         haystack/backends/whoosh_backends.py文件拷贝到blog/下，重命名为whoosh_cn_backends.py(之前在setting文件中的HAYSTACK_CONNECTIONS指定的就是     这个文件)。然后在其中找到一行代码，修改之，修改之前先引入ChiniseAnalyzer
     whoosh_cn_backends.py
 
     from jieba.analyse import ChineseAnalyzer
 
     ...
-    schema_fields[field_class.index_fieldname] = TEXT(stored=True, analyzer=ChineseAnalyzer(),field_boost=field_class.boost,     sortable=True)
+    schema_fields[field_class.index_fieldname] = TEXT(stored=True, analyzer=ChineseAnalyzer(),field_boost=field_class.boost,                 sortable=True)
     最后，建立索引文件，只需在命令行中运行命令python manage.py rebuild_index
 
 
