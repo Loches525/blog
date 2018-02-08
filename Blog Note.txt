@@ -147,7 +147,8 @@
 	def __str__(self):
 	    return self.text[:20]
     迁移数据库python manage.py makemigrations, python manage.py migrate
-30. 编写评论表单代码，在comments目录中新建一个forms.py文件，用以存放表单代码。要用Django的表单功能，需先导入forms模块，Django的表单必须继承自         forms.Form或者forms.ModelForm类，如果表单对应有一个数据库模型，（此处评论表单对应着评论模型）,所以使用ModelForm类会简单很多
+30. 编写评论表单代码，在comments目录中新建一个forms.py文件，用以存放表单代码。要用Django的表单功能，需先导入forms模块，
+    Django的表单必须继承自forms.Form或者forms.ModelForm类，如果表单对应有一个数据库模型，（此处评论表单对应着评论模型）,所以使用ModelForm类会简单     很多
     from django import forms
     from .models import Comment
 
@@ -155,7 +156,8 @@
 	class Meta:
 	    model = Comment
 	    fields = ['name', 'email', 'url', 'text']
-31. 编写评论视图函数，comments目录下的views.py。当redirect函数接收一个模型的实例时，它会调用这个模型实例的get_absolute_url，然后重定向到             get_absoluste_url方法返回的url。
+31. 编写评论视图函数，comments目录下的views.py。当redirect函数接收一个模型的实例时，它会调用这个模型实例的get_absolute_url，
+    然后重定向到get_absoluste_url方法返回的url。
     from django.shortcuts import render, get_object_or_404, redirect
     from blog.models import Post
     from .models import Comment
