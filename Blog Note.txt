@@ -338,7 +338,14 @@
 44. 配置URL路径
     app_name = 'blog'
     urlpatterns = [ ... url(r'^category/(?P<pk>[0-9]+)/$', views.CategoryView.as_view(), name='category'),]
-45. archivies视图函数改写成类视图跟category是一样的，另外Django还提供一个DetailView类视图，下面将detail类视图函数转换成等价的类视图                 PostDetailView。首先指定的一些属性值和ListView中是一样的，然后复写了get方法，这里对应这detai视图函数中将post的阅读量+1的那部分代码；然后又复写     了get_object方法，这对应这detail视图函数中根据文章的id(也就是pk)获取文章然后对post.body进行Markdown渲染的部分;最后又复写了get_context_data方     法，这部分对应这detail视图函数中生成评论表单、获取post下的评论列表的部分，它首先调用父类的get_context_data方法获得当前的上下文对象，然后更新再     返回给模板。其实，可以将get方法看成是detail视图函数，然后其它的get、get_object、get_context_data都是辅助方法，这些方法最终都在get方法中被调       用，这里没有看到是因为都隐含在super(PostDetailView,self).get(request, *args, **kwargs)之中，最终返回的响应就是get方法返回的HttpResponse对     象。
+45. archivies视图函数改写成类视图跟category是一样的，另外Django还提供一个DetailView类视图，
+下面将detail类视图函数转换成等价的类视图PostDetailView。首先指定的一些属性值和ListView中是一样的，然后复写了get方法，
+这里对应这detai视图函数中将post的阅读量+1的那部分代码；然后又复写了get_object方法，
+这对应这detail视图函数中根据文章的id(也就是pk)获取文章然后对post.body进行Markdown渲染的部分;最后又复写了get_context_data方法，
+这部分对应这detail视图函数中生成评论表单、获取post下的评论列表的部分，它首先调用父类的get_context_data方法获得当前的上下文对象，
+然后更新再返回给模板。其实，可以将get方法看成是detail视图函数，然后其它的get、get_object、get_context_data都是辅助方法，
+这些方法最终都在get方法中被调用，这里没有看到是因为都隐含在super(PostDetailView,self).get(request, *args, **kwargs)之中，
+最终返回的响应就是get方法返回的HttpResponse对象。
     from django.views.generic import ListView, DetailView
     class PostDetailView(DetailView):
 	model = Post
@@ -368,7 +375,8 @@
 	    })
 	    return context
 46. Django Pagination分页功能, Django内置了Paginator类实现分页功能，这个类位于django.core.paginator.py，使用时导入便可。
-    简单分页，所需变量：paginator(Paginator的实例),page_obj(当前请求页面分页对象)，is_paginated(是否已分页，超过两页才算),object_list(请求页面     的对象列表)。因为类视图ListView已经写好了分页逻辑，所以只需指定paginate_by(每页的文章数)属性来开启分页功能即可。
+    简单分页，所需变量：paginator(Paginator的实例),page_obj(当前请求页面分页对象)，is_paginated(是否已分页，超过两页才算),
+    object_list(请求页面的对象列表)。因为类视图ListView已经写好了分页逻辑，所以只需指定paginate_by(每页的文章数)属性来开启分页功能即可。
     class IndexView(ListView):
 	model = Post
 	template_name = 'blog/index.html
@@ -386,7 +394,7 @@
 	{% endif %}
     </div>
     {% endif %}
-47. 分页效果完善，使得(1.始终显示第一页和最后一页。2.当前页码高亮显示。3.显示当前页码前后几个连续的页码。4.如果两个页码号间还有其它页码，中间显示省     略号以提醒用户。）在类视图中传递模板变量给模板是通过get_context_data获得的，所以可以复写该方法，以便插入自定义的模板变量。首先得获得父类生成的传     递给模板的字典context，在context中有paginator,page_obj,is_paginated三个模板变量，由于context是字典，所以用get方法取出某个键对应的值，然后调     用自己写的pagination_data方法获得像是分页导航条需要的数据，并且调用context的update方法更新数据，最后返回
+47. 分页效果完善，使得(1.始终显示第一页和最后一页。2.当前页码高亮显示。3.显示当前页码前后几个连续的页码。4.如果两个页码号间还有其它页码，中间显示省  略号以提醒用户。）在类视图中传递模板变量给模板是通过get_context_data获得的，所以可以复写该方法，以便插入自定义的模板变量。首先得获得父类生成的传     递给模板的字典context，在context中有paginator,page_obj,is_paginated三个模板变量，由于context是字典，所以用get方法取出某个键对应的值，然后调     用自己写的pagination_data方法获得像是分页导航条需要的数据，并且调用context的update方法更新数据，最后返回
     class IndexView(ListView):
 	model = Post
 	template_name = 'blog/index.html'
