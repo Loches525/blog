@@ -97,7 +97,7 @@
     ...
 24. 继承的时候需要再html文件的顶部加入{% extends 'base.html' %}语句，如此可将base.html中的内容继承过来，并且可在block/endblock占位区中自定义所需     的代码
 25. 侧边栏： 使用自定义模板标签(不是在视图函数中)
-    在blog应用下新建一个templatetags文件夹，然后在此文件夹下新建一个__init__.py文件，是这个文件夹成为一个Python包，然后同样在当前文件夹下新建一个     log_tags.py文件，这个文件存放自定义的模板标签代码
+    在blog应用下新建一个templatetags文件夹，然后在此文件夹下新建一个__init__.py文件，是这个文件夹成为一个Python包，然后同样在当前文件夹下新建一个     blog_tags.py文件，这个文件存放自定义的模板标签代码
     from ..models import Post
     
     def get_recent_posts(num=5):
