@@ -1,4 +1,4 @@
-﻿1. 安装并激活虚拟环境activate
+﻿1. 安装pip install virtualenv, virtualenv path并激活虚拟环境activate
 2. 安装Django, pip install django==1.10.6
 3. 建立Django工程, django-admin startproject blogproject
 4. 修改setting文件以支持中文与中国时区, LANGUAGE_CODE = 'zh-hans', TIME_ZONE = 'Asia/Shanghai'
